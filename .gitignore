@@ -1,0 +1,8 @@
+*.*~
+*.Cache
+Multiserial/Debug
+packages
+bin/
+obj/
+Debug/
+.vs/
