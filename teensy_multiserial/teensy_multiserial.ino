@@ -28,7 +28,7 @@ void Multiserial::print(void)
 QueueArray<Multiserial> queue;
 
 void setup() {
-  // Per agire in forma GPIO ocorre definire pin per pin alcuni parametri
+  // Per agire in forma GPIO ocorre definire pin per pin alcuni parametri  
   PORTC_PCR0 = (1<<8);
   PORTC_PCR1 = (1<<8);
   PORTC_PCR2 = (1<<8);
@@ -41,25 +41,24 @@ void setup() {
   PORTC_PCR9 = (1<<8);
   PORTC_PCR10 = (1<<8);
   
-  GPIOC_PDDR = 0x3FF; // porta C in output
-  timer5.begin(interrupt_service_routine, MICROSECONDS_PER_INTERRUPT);  // blinkLED to run every 0.15 seconds
+  //GPIOC_PDDR = 0x3FF; // porta C in output
+  GPIOC_PDDR = 0x00C0; // porta C in input
   init();
   Serial.begin(115200);
-  Serial.write("Multiserial ver 0.1\n");
+  timer5.begin(interrupt_service_routine, MICROSECONDS_PER_INTERRUPT);
 }
+
 
 void enque(int line_no, int received_char)
 {
+  GPIOC_PTOR = 0x40;
 	Multiserial m = Multiserial(line_no, received_char);
 	queue.enqueue(m);
+  GPIOC_PTOR = 0x40;
 }
 
 void loop() {
-  for (int i=0; i<10; i++) {
-    enque(1,'A');
-  }
 	while (!queue.isEmpty()) {
 		queue.dequeue().print();
 	}
-  delay(2000);
 }

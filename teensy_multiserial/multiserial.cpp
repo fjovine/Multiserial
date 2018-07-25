@@ -42,7 +42,8 @@ unsigned receiving_mask;
 
 void init()
 {
-    receiving_mask = ~0;
+    //receiving_mask = ~0;
+    receiving_mask = 1;
     last_state = -1;
     for (int i=0; i<LINES_COUNT; i++) {
         PLINE_DESCRIPTOR current = & line_status[i];
@@ -54,6 +55,7 @@ void init()
 
 void interrupt_service_routine()
 {
+    GPIOC_PTOR = 0x80; 
     unsigned current_state = GPIOC_PDIR;
     unsigned masked_transition = DOWN_TRANSITION(last_state, current_state) & receiving_mask;
     int bit;
@@ -89,4 +91,5 @@ void interrupt_service_routine()
             receiving_mask |= (1u << bit);
         }
     }
+    GPIOC_PTOR = 0x80; 
 }
