@@ -26,19 +26,19 @@ typedef struct {
     unsigned received_so_far;
     unsigned current_mask;
     unsigned interrupts_to_go;
-} LINE_DESCRIPTOR, *PLINE_DESCRIPTOR;
+} LINE_DESCRIPTOR;
 
-unsigned old_state;
-unsigned mask;
+//unsigned old_state;
+volatile unsigned mask;
 
 // If line[i] is inactive, then counters[i] == 0
-LINE_DESCRIPTOR line_status[LINES_COUNT];
+volatile LINE_DESCRIPTOR line_status[LINES_COUNT];
 
 // state of the lines sampled during the last interrupt_service_routine
-unsigned last_state;
+volatile unsigned last_state;
 
 // A bit is set if the corresponding serial line is active
-unsigned receiving_mask;
+volatile unsigned receiving_mask;
 
 void init()
 {
@@ -46,7 +46,8 @@ void init()
     receiving_mask = 1;
     last_state = -1;
     for (int i=0; i<LINES_COUNT; i++) {
-        PLINE_DESCRIPTOR current = & line_status[i];
+//        PLINE_DESCRIPTOR current = & line_status[i];
+		volatile LINE_DESCRIPTOR * current = & line_status[i];
         current->received_so_far = 0;
         current->current_mask = 0;
         current->interrupts_to_go = 0;
@@ -75,7 +76,9 @@ void interrupt_service_routine()
 
     unsigned bit_mask = 0x1;
     for (bit =0; bit<LINES_COUNT; bit++, bit_mask <<= 1) {
-        PLINE_DESCRIPTOR current_line = &line_status[bit];
+//        PLINE_DESCRIPTOR current_line = &line_status[bit];
+		volatile LINE_DESCRIPTOR * current_line = & line_status[bit];
+
         if ((current_line -> current_mask == 0) || (--current_line->interrupts_to_go > 0)) {
             continue;
         }
